@@ -8,7 +8,7 @@ from groq import Groq
 import os
 from dotenv import load_dotenv
 import sqlite3
-import bcrypt
+from passlib.hash import bcrypt
 from PIL import Image
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -170,23 +170,40 @@ def register_user(username, password):
     try:
         conn = get_db()
         c = conn.cursor()
-        hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
-                  (username, hashed))
+
+        # Hash password using passlib
+        hashed = bcrypt.hash(password)
+
+        c.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, hashed)
+        )
+
         conn.commit()
         conn.close()
+
         return True
+
     except:
         return False
+
 
 def login_user(username, password):
     conn = get_db()
     c = conn.cursor()
-    c.execute("SELECT password FROM users WHERE username=?", (username,))
+
+    c.execute(
+        "SELECT password FROM users WHERE username=?",
+        (username,)
+    )
+
     row = c.fetchone()
     conn.close()
-    if row and bcrypt.checkpw(password.encode(), row[0]):
+
+    # Verify password
+    if row and bcrypt.verify(password, row[0]):
         return True
+
     return False
 
 def save_prediction(username, risk_score, risk_tier, age, time_in_hospital,
