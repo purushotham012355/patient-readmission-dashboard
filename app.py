@@ -8,7 +8,7 @@ from groq import Groq
 import os
 from dotenv import load_dotenv
 import sqlite3
-from passlib.hash import bcrypt
+from passlib.hash import bcrypt 
 from PIL import Image
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
